@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.rhssrobotics.utilities;
+package utilities;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -18,7 +18,7 @@ import java.util.Hashtable;
  */
 public class ConstantsFileReader {
     
-  private final Path filePath;
+  private final Path filePath; //"C:\\Temp\\test.txt" in this form
   private final static Charset ENCODING = StandardCharsets.UTF_8;  
   private  static Hashtable constants = new Hashtable();
   
@@ -53,7 +53,7 @@ public class ConstantsFileReader {
       String value = scanner.next();
       log(key.trim() + " = " + value.trim());
       
-      constants.put(key, value);
+      constants.put(key.trim(), value.trim());
     }
     else {
       log("Empty or invalid line. Unable to process.");
@@ -67,7 +67,7 @@ public class ConstantsFileReader {
     System.out.println(String.valueOf(aObject));
   }
 
-   public static String getString(String constName) {
+   public String getString(String constName) {
         Object val = constants.get(constName);
         System.out.println("Reading String From Hash: " + val);
         if (val == null){
@@ -78,7 +78,7 @@ public class ConstantsFileReader {
         }
     }
     
-    public static double getDouble (String constName) {
+    public double getDouble (String constName) {
         try {
             double val = Double.parseDouble(getString(constName));
             return val;
@@ -87,7 +87,7 @@ public class ConstantsFileReader {
         }
     }
     
-    public static int getInteger(String constName) {
+    public int getInteger(String constName) {
         try {
             int val = Integer.parseInt(getString(constName));
             return val;
@@ -96,7 +96,7 @@ public class ConstantsFileReader {
         }
     }
     
-    public static long getLong(String constName) {
+    public long getLong(String constName) {
         try {
             long val = Long.parseLong(getString(constName));
             return val;
@@ -105,7 +105,7 @@ public class ConstantsFileReader {
         }
     }
     
-    public static boolean getBoolean (String constName) {
+    public boolean getBoolean (String constName) {
         try {
             boolean val = getString(constName).toLowerCase().equals("true");
             if(getString(constName).toLowerCase().equals("false")){

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.rhssrobotics.constantsviewer;
+package constantsviewer;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -12,7 +12,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import edu.rhssrobotics.utilities.ConstantsFileReader;
+import utilities.ConstantsFileReader;
+import java.io.IOException;
 
 /**
  *
@@ -20,14 +21,23 @@ import edu.rhssrobotics.utilities.ConstantsFileReader;
  */
 public class ConstantsViewer extends Application {
     
+    ConstantsFileReader constReader = new ConstantsFileReader("C:\\constants.txt");
+    
     @Override
     public void start(Stage primaryStage) {
+        
+        try {
+            constReader.processLineByLine();
+        } catch (IOException e) {
+            System.out.println("Error while reading file");
+        }
+        
         Button btn = new Button();
-        btn.setText("Say 'Hello World'");
+        btn.setText("Get armP");
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
+                System.out.println(constReader.getDouble("armP"));
             }
         });
         
@@ -36,7 +46,7 @@ public class ConstantsViewer extends Application {
         
         Scene scene = new Scene(root, 300, 250);
         
-        primaryStage.setTitle("Hello World!");
+        primaryStage.setTitle("Testing");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
