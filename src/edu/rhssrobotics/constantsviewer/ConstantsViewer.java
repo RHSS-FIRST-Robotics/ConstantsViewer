@@ -12,7 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import edu.rhssrobotics.utilities.TextFileReader;
+import edu.rhssrobotics.utilities.ConstantsFileReader;
 
 /**
  *
