@@ -14,6 +14,14 @@ import javafx.stage.Stage;
 
 import utilities.ConstantsFileReaderWriter;
 import java.io.IOException;
+import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+
 
 /**
  *
@@ -21,10 +29,13 @@ import java.io.IOException;
  */
 public class ConstantsViewer extends Application {
     
-    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter("C:\\constants.txt");
+    String fileName = "constants.txt";
+    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter("C:\\" + fileName);
+    private TableView table = new TableView();
+    
     
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage stage) {
         
         try {
             consts.processLineByLine();
@@ -32,24 +43,31 @@ public class ConstantsViewer extends Application {
             System.out.println("Error while reading file");
         }
         
-        Button btn = new Button();
-        btn.setText("Get armP");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println(consts.getDouble("armP"));
-                consts.writeConstant("hey", consts.getDouble("armP"));
-            }
-        });
+        Scene scene = new Scene(new Group());
+        stage.setTitle(fileName);
+        stage.setWidth(300);
+        stage.setHeight(500);
+ 
+        final Label label = new Label("Constants File Editor");
+        label.setFont(new Font("Arial", 20));
+ 
+        table.setEditable(true);
+ 
+        TableColumn firstCol = new TableColumn("Constant");
+        TableColumn secondCol = new TableColumn("Value");
         
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
+        table.getColumns().addAll(firstCol, secondCol);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY); //so that only two columns get made
+        final VBox vbox = new VBox();
+        vbox.setSpacing(5);
+        vbox.setPadding(new Insets(10, 0, 0, 10));
+        vbox.getChildren().addAll(label, table);
+ 
+        ((Group) scene.getRoot()).getChildren().addAll(vbox);
+ 
+        stage.setScene(scene);
+        stage.show();
         
-        Scene scene = new Scene(root, 300, 250);
-        
-        primaryStage.setTitle("Testing");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
     /**
