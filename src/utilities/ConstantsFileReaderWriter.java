@@ -8,10 +8,13 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 import java.util.Hashtable;
 
@@ -24,7 +27,9 @@ public class ConstantsFileReaderWriter {
   private final Path filePath; //"C:\\Temp\\test.txt" in this form
   private final String sFilePath; //"C:\\Temp\\test.txt" in this form
   private final static Charset ENCODING = StandardCharsets.UTF_8;  
-  private  static Hashtable constants = new Hashtable();
+  private static Hashtable constants = new Hashtable();
+  
+  Constant[] constArray;
   
  /*
   * Constructor.
@@ -63,6 +68,33 @@ public class ConstantsFileReaderWriter {
     else {
       log("Empty or invalid line. Unable to process.");
     }
+  }
+  
+  public Constant[] hashToConstantArray() {
+      ArrayList<String> keys = Collections.list(constants.keys());
+      ArrayList<Object> vals = Collections.list(constants.elements());
+      constArray = new Constant[keys.size()];
+
+      for (int i = 0; i < keys.size(); i++) {
+          constArray[i] = new Constant(keys.get(i), vals.get(i));
+      }
+      
+      return constArray;
+  }
+  
+  public Constant getConstArrayAtIndex(int index)
+  {
+      return constArray[index];
+  }
+  
+  public int getArrayLength()
+  {
+      return constArray.length;
+  }
+
+  public ArrayList<Object> valsToArrayList() {
+      ArrayList<Object> arr = Collections.list(constants.elements());
+      return arr;
   }
   
   /*
