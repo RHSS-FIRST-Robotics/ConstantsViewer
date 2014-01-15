@@ -4,7 +4,11 @@
  */
 package utilities;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,6 +30,7 @@ public class ConstantsFileReaderWriter {
     
   private final Path filePath; //"C:\\Temp\\test.txt" in this form
   private final String sFilePath; //"C:\\Temp\\test.txt" in this form
+  private final String sFileName;
   private final static Charset ENCODING = StandardCharsets.UTF_8;  
   private static Hashtable constants = new Hashtable();
   
@@ -36,8 +41,9 @@ public class ConstantsFileReaderWriter {
   * @param aFileName full name of an existing, readable file.
   */
   public ConstantsFileReaderWriter(String fileName){
-    filePath = Paths.get(fileName);
-    sFilePath = fileName;
+    filePath = Paths.get("C:\\" + fileName + ".txt");
+    sFilePath = "C:\\" + fileName + ".txt";
+    sFileName = fileName;
   }
   
   public final void processLineByLine() throws IOException {
@@ -113,18 +119,66 @@ public class ConstantsFileReaderWriter {
       } catch (IOException e) {} //exception handling left as an exercise for the reader
     }
     
+    public void deleteConstant(String constToRemove){
+        
+        try {
 
-   public String getString(String constName) {
+        File inFile = new File("C:\\" + sFileName + ".txt");
+
+        if (!inFile.isFile()) {
+          System.out.println("Parameter is not an existing file");
+          return;
+        }
+
+        //Construct the new file that will later be renamed to the original filename.
+        File tempFile = new File("C:\\tmp" + sFileName + ".txt");
+
+        BufferedReader br = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
+        PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
+
+        String line = null;
+
+        //Read from the original file and write to the new
+        //unless content matches data to be removed.
+        while ((line = br.readLine()) != null) {
+            if (!line.trim().contains(constToRemove)) {
+                pw.println(line);
+                pw.flush();
+            }
+        }
+        pw.close();
+        br.close();
+
+        //Delete the original file
+        if (!inFile.delete()) {
+          System.out.println("Could not delete file");
+          return;
+        }
+
+        //Rename the new file to the filename the original file had.
+        if (!tempFile.renameTo(inFile))
+          System.out.println("Could not rename file");
+
+        }
+        catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public String getString(String constName) {
         Object val = constants.get(constName);
         System.out.println("Reading String From Hash: " + val);
         if (val == null){
-            System.out.println("Failed to return constant: " + constName);
-            return "";
+          System.out.println("Failed to return constant: " + constName);
+          return "";
         }else{
-            return (String) val;
+          return (String) val;
         }
     }
-    
+
     public double getDouble (String constName) {
         try {
             double val = Double.parseDouble(getString(constName));

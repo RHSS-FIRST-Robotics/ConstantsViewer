@@ -37,8 +37,9 @@ import utilities.Constant;
  */
 public class ConstantsViewer extends Application {
     
-    String fileName = "constants.txt";
-    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter("C:\\" + fileName);
+    String fileName = "constants";
+    String folderPath;
+    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName);
     private TableView table = new TableView();
     final HBox hb = new HBox();
     
@@ -110,10 +111,25 @@ public class ConstantsViewer extends Application {
         hb.getChildren().addAll(addConstant, addValue, addButton);
         hb.setSpacing(3);
         
+        final Button delButton = new Button("Delete");
+        delButton.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent e) {
+                Constant delConst = (Constant)table.getSelectionModel().getSelectedItem();
+                data.remove(delConst);
+
+                consts.deleteConstant(delConst.getKey());
+                table.getSelectionModel().clearSelection();
+                
+            }
+        });
+        
+        
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, table, hb);
+        vbox.getChildren().addAll(label, table, hb, delButton);
  
         ((Group) scene.getRoot()).getChildren().addAll(vbox);
  
