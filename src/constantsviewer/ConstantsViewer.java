@@ -12,7 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import utilities.ConstantsFileReader;
+import utilities.ConstantsFileReaderWriter;
 import java.io.IOException;
 
 /**
@@ -21,13 +21,13 @@ import java.io.IOException;
  */
 public class ConstantsViewer extends Application {
     
-    ConstantsFileReader constReader = new ConstantsFileReader("C:\\constants.txt");
+    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter("C:\\constants.txt");
     
     @Override
     public void start(Stage primaryStage) {
         
         try {
-            constReader.processLineByLine();
+            consts.processLineByLine();
         } catch (IOException e) {
             System.out.println("Error while reading file");
         }
@@ -37,7 +37,8 @@ public class ConstantsViewer extends Application {
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                System.out.println(constReader.getDouble("armP"));
+                System.out.println(consts.getDouble("armP"));
+                consts.writeConstant("hey", consts.getDouble("armP"));
             }
         });
         

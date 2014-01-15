@@ -4,7 +4,10 @@
  */
 package utilities;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -16,9 +19,10 @@ import java.util.Hashtable;
  *
  * @author Vidyasagar
  */
-public class ConstantsFileReader {
+public class ConstantsFileReaderWriter {
     
   private final Path filePath; //"C:\\Temp\\test.txt" in this form
+  private final String sFilePath; //"C:\\Temp\\test.txt" in this form
   private final static Charset ENCODING = StandardCharsets.UTF_8;  
   private  static Hashtable constants = new Hashtable();
   
@@ -26,8 +30,9 @@ public class ConstantsFileReader {
   * Constructor.
   * @param aFileName full name of an existing, readable file.
   */
-  public ConstantsFileReader(String fileName){
+  public ConstantsFileReaderWriter(String fileName){
     filePath = Paths.get(fileName);
+    sFilePath = fileName;
   }
   
   public final void processLineByLine() throws IOException {
@@ -66,6 +71,16 @@ public class ConstantsFileReader {
   private static void log(Object aObject){
     System.out.println(String.valueOf(aObject));
   }
+  
+    public void writeConstant(String key, Object val) {
+      try {
+          PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath, true)));
+          out.println(key + " = " + val);
+          constants.put(key, val);
+          out.close();
+      } catch (IOException e) {} //exception handling left as an exercise for the reader
+    }
+    
 
    public String getString(String constName) {
         Object val = constants.get(constName);
