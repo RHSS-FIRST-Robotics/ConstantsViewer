@@ -8,9 +8,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
@@ -32,6 +34,7 @@ public class ConstantsFileReaderWriter {
   private final String sFilePath; //"C:\\Temp\\test.txt" in this form
   private final String sFileName;
   private final static Charset ENCODING = StandardCharsets.UTF_8;  
+  public static String newLine = System.getProperty("line.separator");
   private static Hashtable constants = new Hashtable();
   
   Constant[] constArray;
@@ -47,7 +50,7 @@ public class ConstantsFileReaderWriter {
   }
   
   public final void processLineByLine() throws IOException {
-    try (Scanner scanner =  new Scanner(filePath, ENCODING.name())){
+    try (Scanner scanner =  new Scanner(filePath)){ //, ENCODING.name()
       while (scanner.hasNextLine()){
         processLine(scanner.nextLine());
       }      
@@ -61,19 +64,19 @@ public class ConstantsFileReaderWriter {
    */
   protected void processLine(String aLine){
     //use a second Scanner to parse the content of each line 
-    Scanner scanner = new Scanner(aLine);
-    scanner.useDelimiter("=");
-    if (scanner.hasNext()){
-      //assumes the line has a certain structure
-      String key = scanner.next();
-      String value = scanner.next();
-      log(key.trim() + " = " + value.trim());
-      
-      constants.put(key.trim(), value.trim());
-    }
-    else {
-      log("Empty or invalid line. Unable to process.");
-    }
+//    Scanner scanner = new Scanner(aLine);
+//    scanner.useDelimiter("=");
+//    if (scanner.hasNext()){
+//      //assumes the line has a certain structure
+//      String key = scanner.next();
+//      String value = scanner.next();
+//      log(key.trim() + " = " + value.trim());
+//      
+//      constants.put(key.trim(), value.trim());
+//    }
+//    else {
+//      log("Empty or invalid line. Unable to process.");
+//    }
   }
   
   public Constant[] hashToConstantArray() {
@@ -159,6 +162,107 @@ public class ConstantsFileReaderWriter {
         if (!tempFile.renameTo(inFile))
           System.out.println("Could not rename file");
 
+        }
+        catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public void editConstantKey(String oldKey, String newKey) {
+        try {
+
+        File inFile = new File("C:\\" + sFileName + ".txt");
+
+        if (!inFile.isFile()) {
+          System.out.println("Parameter is not an existing file");
+          return;
+        }
+
+        BufferedReader br = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
+        String newFileLines = "";
+        String line = null;
+        
+        while ((line = br.readLine()) != null) {
+            newFileLines += line + newLine;
+        }
+        
+        BufferedReader br2 = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
+        
+        while ((line = br2.readLine()) != null){
+            
+        if (line.trim().contains(oldKey)) {
+            newFileLines = newFileLines.replace(oldKey, newKey);
+        }
+        
+        }
+        
+        BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\" + sFileName + ".txt"));
+        
+        String[] constants = newFileLines.split(newLine);
+        for (String constant: constants) {
+            writer.write(constant);
+            writer.write(newLine);
+        }
+        
+        writer.close();
+        br.close();
+        br2.close();
+        
+        }
+        catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+     public void editConstantVal(String key, Object newVal) {
+        try {
+
+        File inFile = new File("C:\\" + sFileName + ".txt");
+
+        if (!inFile.isFile()) {
+          System.out.println("Parameter is not an existing file");
+          return;
+        }
+
+        BufferedReader br = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
+        String newFileLines = "";
+        String line = null;
+        String replacedLine = null;
+        
+        while ((line = br.readLine()) != null) {
+            newFileLines += line + newLine;
+        }
+        
+        BufferedReader br2 = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
+        
+        while ((line = br2.readLine()) != null){
+            
+            if (line.trim().contains(key)) {
+                replacedLine = line.replace(String.valueOf(constants.get(key)), String.valueOf(newVal));
+                
+                newFileLines = newFileLines.replace(line, replacedLine);
+            }
+        
+        }
+        
+        BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\" + sFileName + ".txt"));
+        
+        String[] constants = newFileLines.split(newLine);
+        for (String constant: constants) {
+            writer.write(constant);
+            writer.write(newLine);
+        }
+        
+        writer.close();
+        br.close();
+        br2.close();
+        
         }
         catch (FileNotFoundException ex) {
             ex.printStackTrace();

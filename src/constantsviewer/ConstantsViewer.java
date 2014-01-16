@@ -22,9 +22,11 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -64,7 +66,7 @@ public class ConstantsViewer extends Application {
         Scene scene = new Scene(new Group());
         stage.setTitle(fileName);
         stage.setWidth(285);
-        stage.setHeight(515);
+        stage.setHeight(540);
  
         final Label label = new Label("Constants File Editor");
         label.setFont(new Font("Arial", 20));
@@ -99,8 +101,8 @@ public class ConstantsViewer extends Application {
             
         @Override 
         public void handle(ActionEvent e) {
-            data.add(new Constant( addConstant.getText(), Double.valueOf(addValue.getText())));
-            consts.writeConstant(addConstant.getText(), Double.valueOf(addValue.getText()));
+            data.add(new Constant( addConstant.getText(), String.valueOf(addValue.getText())));
+            consts.writeConstant(addConstant.getText(), String.valueOf(addValue.getText()));
             addConstant.clear();
             addValue.clear();
 
@@ -125,6 +127,35 @@ public class ConstantsViewer extends Application {
             }
         });
         
+        firstCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        firstCol.setOnEditCommit(
+        new EventHandler<CellEditEvent<Constant, String>>() {
+        @Override
+        public void handle(CellEditEvent<Constant, String> t) {
+            
+            consts.editConstantKey(t.getRowValue().getKey(), t.getNewValue());
+            
+            ((Constant) t.getTableView().getItems().get(
+                t.getTablePosition().getRow())
+                ).setKey(t.getNewValue());
+        }
+        }
+        );
+        
+        secondCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        secondCol.setOnEditCommit(
+        new EventHandler<CellEditEvent<Constant, Object>>() {
+        @Override
+        public void handle(CellEditEvent<Constant, Object> t) {
+            
+            consts.editConstantVal(t.getRowValue().getKey(), t.getNewValue());
+            ((Constant) t.getTableView().getItems().get(
+                t.getTablePosition().getRow())
+                ).setVal(t.getNewValue());
+            
+        }
+        }
+        );
         
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
