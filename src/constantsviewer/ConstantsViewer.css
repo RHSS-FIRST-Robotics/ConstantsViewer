@@ -1,0 +1,49 @@
+/* 
+    Document   : ConstantsViewer
+    Created on : 15-Jan-2014, 10:18:32 PM
+    Author     : Vidyasagar
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+    -fx-font-family: "Calibri Light";
+}
+
+#Constants-File-Editor {
+   -fx-font-size: 24pt;
+   -fx-font-family: "Calibri Light";
+
+}
+
+.table-view *.scroll-bar:horizontal *.increment-button,
+.table-view *.scroll-bar:horizontal *.decrement-button {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.table-view *.scroll-bar:horizontal *.increment-arrow, 
+.table-view *.scroll-bar:horizontal *.decrement-arrow {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-shape: null;
+}
+
+#Delete-Button {
+    
+}
+
+#Delete-Button:hover {
+    -fx-border-color: red;
+    
+}
+
+#Add-Button:hover {
+    -fx-border-color: green;
+    
+}

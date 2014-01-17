@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
@@ -31,9 +32,9 @@ import java.util.Hashtable;
 public class ConstantsFileReaderWriter {
     
   private final Path filePath; //"C:\\Temp\\test.txt" in this form
-  private final String sFilePath; //"C:\\Temp\\test.txt" in this form
+  private final String sFilePath; 
   private final String sFileName;
-  private final static Charset ENCODING = StandardCharsets.UTF_8;  
+
   public static String newLine = System.getProperty("line.separator");
   private static Hashtable constants = new Hashtable();
   
@@ -43,18 +44,10 @@ public class ConstantsFileReaderWriter {
   * Constructor.
   * @param aFileName full name of an existing, readable file.
   */
-  public ConstantsFileReaderWriter(String fileName){
-    filePath = Paths.get("C:\\" + fileName + ".txt");
-    sFilePath = "C:\\" + fileName + ".txt";
+  public ConstantsFileReaderWriter(String fileName, String filePath){
+    this.filePath = Paths.get(filePath);
+    sFilePath = filePath;
     sFileName = fileName;
-  }
-  
-  public final void processLineByLine() throws IOException {
-    try (Scanner scanner =  new Scanner(filePath)){ //, ENCODING.name()
-      while (scanner.hasNextLine()){
-        processLine(scanner.nextLine());
-      }      
-    }
   }
   
   /*
@@ -62,56 +55,71 @@ public class ConstantsFileReaderWriter {
    * This simple default implementation expects simple name-value pairs, separated by an 
    * '=' sign just like the format of the constants file on the robot.
    */
-  protected void processLine(String aLine){
-    //use a second Scanner to parse the content of each line 
-//    Scanner scanner = new Scanner(aLine);
-//    scanner.useDelimiter("=");
-//    if (scanner.hasNext()){
-//      //assumes the line has a certain structure
-//      String key = scanner.next();
-//      String value = scanner.next();
-//      log(key.trim() + " = " + value.trim());
-//      
-//      constants.put(key.trim(), value.trim());
-//    }
-//    else {
-//      log("Empty or invalid line. Unable to process.");
-//    }
-  }
-  
-  public Constant[] hashToConstantArray() {
-      ArrayList<String> keys = Collections.list(constants.keys());
-      ArrayList<Object> vals = Collections.list(constants.elements());
-      constArray = new Constant[keys.size()];
+    public void processLineByLine(){
 
-      for (int i = 0; i < keys.size(); i++) {
-          constArray[i] = new Constant(keys.get(i), vals.get(i));
-      }
-      
-      return constArray;
-  }
-  
-  public Constant getConstArrayAtIndex(int index)
-  {
-      return constArray[index];
-  }
-  
-  public int getArrayLength()
-  {
-      return constArray.length;
-  }
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("C:\\" + sFileName + ".txt"));
 
-  public ArrayList<Object> valsToArrayList() {
-      ArrayList<Object> arr = Collections.list(constants.elements());
-      return arr;
-  }
+            String line = null;
+            int lineNum = 0;
+            while((line = br.readLine()) != null){
+                lineNum ++;
+                if(line.length() != 0 && line.charAt(0) != '#'){
+                    int numSignPos = line.indexOf("#");
+                    if(numSignPos > 0){
+                        line = line.substring(0, numSignPos);
+                    }
+
+                    int equalsSignPos = line.indexOf("=");
+                    if(equalsSignPos <= 1){
+                        log("INVALID SETTING LINE: " + line + " (" + lineNum + ")");
+                    }else{
+                        String key = line.substring(0, equalsSignPos - 1).trim();
+                        String value = line.substring(equalsSignPos + 1).trim();
+
+                        if(key.length() > 0 && value.length() > 0){
+                            log("putting to HashTable: " + key + " = " + value);
+                            constants.put(key, value);
+                        }
+                    }
+                }
+
+            }
+
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
   
-  /*
-   * Simple wrapper function for System.out.println()
-   */
-  private static void log(Object aObject){
-    System.out.println(String.valueOf(aObject));
-  }
+    public Constant[] hashToConstantArray() {
+        ArrayList<String> keys = Collections.list(constants.keys());
+        ArrayList<Object> vals = Collections.list(constants.elements());
+        constArray = new Constant[keys.size()];
+
+        for (int i = 0; i < keys.size(); i++) {
+            constArray[i] = new Constant(keys.get(i), vals.get(i));
+        }
+
+        return constArray;
+    }
+
+    public Constant getConstArrayAtIndex(int index)
+    {
+        return constArray[index];
+    }
+
+    public int getArrayLength()
+    {
+        return constArray.length;
+    }
+  
+    /*
+     * Simple wrapper function for System.out.println()
+     */
+    private static void log(Object aObject){
+      System.out.println(String.valueOf(aObject));
+    }
   
     public void writeConstant(String key, Object val) {
       try {
@@ -126,7 +134,7 @@ public class ConstantsFileReaderWriter {
         
         try {
 
-        File inFile = new File("C:\\" + sFileName + ".txt");
+        File inFile = new File(sFilePath);
 
         if (!inFile.isFile()) {
           System.out.println("Parameter is not an existing file");
@@ -134,7 +142,7 @@ public class ConstantsFileReaderWriter {
         }
 
         //Construct the new file that will later be renamed to the original filename.
-        File tempFile = new File("C:\\tmp" + sFileName + ".txt");
+        File tempFile = new File(sFilePath);
 
         BufferedReader br = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
         PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
@@ -174,43 +182,40 @@ public class ConstantsFileReaderWriter {
     public void editConstantKey(String oldKey, String newKey) {
         try {
 
-        File inFile = new File("C:\\" + sFileName + ".txt");
+            File inFile = new File(sFilePath);
 
-        if (!inFile.isFile()) {
-          System.out.println("Parameter is not an existing file");
-          return;
-        }
+            if (!inFile.isFile()) {
+              System.out.println("Parameter is not an existing file");
+              return;
+            }
 
-        BufferedReader br = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
-        String newFileLines = "";
-        String line = null;
-        
-        while ((line = br.readLine()) != null) {
-            newFileLines += line + newLine;
-        }
-        
-        BufferedReader br2 = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
-        
-        while ((line = br2.readLine()) != null){
-            
-        if (line.trim().contains(oldKey)) {
-            newFileLines = newFileLines.replace(oldKey, newKey);
-        }
-        
-        }
-        
-        BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\" + sFileName + ".txt"));
-        
-        String[] constants = newFileLines.split(newLine);
-        for (String constant: constants) {
-            writer.write(constant);
-            writer.write(newLine);
-        }
-        
-        writer.close();
-        br.close();
-        br2.close();
-        
+            BufferedReader br = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
+            String newFileLines = "";
+            String line = null;
+
+            while ((line = br.readLine()) != null) {
+                newFileLines += line + newLine;
+            }
+
+            BufferedReader br2 = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
+
+            while ((line = br2.readLine()) != null){
+                if (line.trim().contains(oldKey)) {
+                    newFileLines = newFileLines.replace(oldKey, newKey);
+                }
+            }
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\" + sFileName + ".txt"));
+
+            String[] constants = newFileLines.split(newLine);
+            for (String constant: constants) {
+                writer.write(constant);
+                writer.write(newLine);
+            }
+
+            br.close();
+            br2.close();
+            writer.close();
         }
         catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -220,67 +225,68 @@ public class ConstantsFileReaderWriter {
         }
     }
     
-     public void editConstantVal(String key, Object newVal) {
+    public void editConstantVal(String key, Object newVal) {
+        
         try {
 
-        File inFile = new File("C:\\" + sFileName + ".txt");
+            File inFile = new File("C:\\" + sFileName + ".txt");
 
-        if (!inFile.isFile()) {
-          System.out.println("Parameter is not an existing file");
-          return;
-        }
-
-        BufferedReader br = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
-        String newFileLines = "";
-        String line = null;
-        String replacedLine = null;
-        
-        while ((line = br.readLine()) != null) {
-            newFileLines += line + newLine;
-        }
-        
-        BufferedReader br2 = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
-        
-        while ((line = br2.readLine()) != null){
-            
-            if (line.trim().contains(key)) {
-                replacedLine = line.replace(String.valueOf(constants.get(key)), String.valueOf(newVal));
-                
-                newFileLines = newFileLines.replace(line, replacedLine);
+            if (!inFile.isFile()) {
+              System.out.println("Parameter is not an existing file");
+              return;
             }
-        
-        }
-        
-        BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\" + sFileName + ".txt"));
-        
-        String[] constants = newFileLines.split(newLine);
-        for (String constant: constants) {
-            writer.write(constant);
-            writer.write(newLine);
-        }
-        
-        writer.close();
-        br.close();
-        br2.close();
-        
-        }
-        catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
-        catch (IOException ex) {
-            ex.printStackTrace();
-        }
+
+            BufferedReader br = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
+            String newFileLines = "";
+            String line = null;
+            String replacedLine = null;
+
+            while ((line = br.readLine()) != null) {
+                newFileLines += line + newLine;
+            }
+
+            BufferedReader br2 = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
+
+            while ((line = br2.readLine()) != null){
+
+                if (line.trim().contains(key)) {
+                    replacedLine = line.replace(String.valueOf(constants.get(key)), String.valueOf(newVal)); //fix issue here with strings
+
+                    newFileLines = newFileLines.replace(line, replacedLine);
+                }
+
+            }
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(sFilePath));
+
+            String[] constants = newFileLines.split(newLine);
+            for (String constant: constants) {
+                writer.write(constant);
+                writer.write(newLine);
+            }
+
+            writer.close();
+            br.close();
+            br2.close();
+
+       }
+       catch (FileNotFoundException ex) {
+           ex.printStackTrace();
+       }
+       catch (IOException ex) {
+           ex.printStackTrace();
+       }
     }
 
     public String getString(String constName) {
-        Object val = constants.get(constName);
-        System.out.println("Reading String From Hash: " + val);
-        if (val == null){
-          System.out.println("Failed to return constant: " + constName);
-          return "";
-        }else{
-          return (String) val;
-        }
+       Object val = constants.get(constName);
+       System.out.println("Reading String From Hash: " + val);
+       if (val == null){
+         System.out.println("Failed to return constant: " + constName);
+         return "";
+       }else{
+         return (String) val;
+       }
     }
 
     public double getDouble (String constName) {
