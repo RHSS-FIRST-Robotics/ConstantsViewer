@@ -133,7 +133,7 @@ public class ConstantsViewer extends Application {
                 Constant delConst = (Constant)table.getSelectionModel().getSelectedItem();
                 data.remove(delConst);
 
-                consts.deleteConstant(delConst.getKey());
+                consts.deleteConstant(delConst.getKey() + " = " + delConst.getVal(), delConst.getKey());
                 table.getSelectionModel().clearSelection();
                 
             }
@@ -164,6 +164,7 @@ public class ConstantsViewer extends Application {
             public void handle(CellEditEvent<Constant, Object> t) {
 
                 consts.editConstantVal(t.getRowValue().getKey(), t.getNewValue());
+                System.out.println("edited " + t.getRowValue().getKey() + " = " + t.getNewValue());
                 ((Constant) t.getTableView().getItems().get(
                     t.getTablePosition().getRow())
                     ).setVal(t.getNewValue());

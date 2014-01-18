@@ -59,8 +59,10 @@ public class ConstantsFileReaderWriter {
 
         try {
             BufferedReader br = new BufferedReader(new FileReader("C:\\" + sFileName + ".txt"));
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath, true)));
 
             String line = null;
+            String prevLine = null;
             int lineNum = 0;
             while((line = br.readLine()) != null){
                 lineNum ++;
@@ -83,9 +85,11 @@ public class ConstantsFileReaderWriter {
                         }
                     }
                 }
-
+                prevLine = line;
             }
-
+            if (prevLine == ""){
+                out.println();
+            }
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -131,52 +135,90 @@ public class ConstantsFileReaderWriter {
       } catch (IOException e) {} //exception handling left as an exercise for the reader
     }
     
-    public void deleteConstant(String constToRemove){
+    public void deleteConstant(String constToRemove, String constKey) {
+       
+//        File inputFile = new File(sFilePath);
+//        File tempFile = new File("C://" + "temp" + sFileName + ".txt");
+//        try {
+//            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+//            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+//
+//        String currentLine = null;
+//
+//        while((currentLine = reader.readLine()) != null) {
+//            // trim newline when comparing with lineToRemove
+//            String trimmedLine = currentLine.trim();
+//            if(trimmedLine.equals(constToRemove)) continue;
+//            writer.write(currentLine);
+//            writer.write(newLine);
+//        }
+//        
+//        reader.close();
+//        writer.close();
+//        
+//          //Delete the original file
+////    if (!inputFile.delete()) {
+////      System.out.println("Could not delete file");
+////      return;
+////    }
+//        //inputFile.delete();
+//
+//    //Rename the new file to the filename the original file had.
+////    if (!tempFile.renameTo(inputFile))
+////      System.out.println("Could not rename file");
+//    //tempFile.renameTo(inputFile);
+//        inputFile.delete();
+//        constants.remove(constKey);
+//    }
+//        catch (IOException e){}
+        
         
         try {
 
-        File inFile = new File(sFilePath);
+          File inFile = new File(sFilePath);
 
-        if (!inFile.isFile()) {
-          System.out.println("Parameter is not an existing file");
-          return;
-        }
+          if (!inFile.isFile()) {
+            System.out.println("Parameter is not an existing file");
+            return;
+          }
 
-        //Construct the new file that will later be renamed to the original filename.
-        File tempFile = new File(sFilePath);
+          //Construct the new file that will later be renamed to the original filename.
+          File tempFile = new File("C://" + "temp" + sFileName + ".txt");
 
-        BufferedReader br = new BufferedReader(new FileReader(inFile.getAbsolutePath()));
-        PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
+          BufferedReader br = new BufferedReader(new FileReader(sFilePath));
+          PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
 
-        String line = null;
+          String line = null;
 
-        //Read from the original file and write to the new
-        //unless content matches data to be removed.
-        while ((line = br.readLine()) != null) {
-            if (!line.trim().contains(constToRemove)) {
-                pw.println(line);
-                pw.flush();
+          //Read from the original file and write to the new
+          //unless content matches data to be removed.
+          while ((line = br.readLine()) != null) {
+
+            if (!line.trim().equals(constToRemove)) {
+
+              pw.println(line);
+              pw.flush();
             }
-        }
-        pw.close();
-        br.close();
+          }
+          pw.close();
+          br.close();
 
-        //Delete the original file
-        if (!inFile.delete()) {
-          System.out.println("Could not delete file");
-          return;
-        }
+          //Delete the original file
+          if (!inFile.delete()) {
+            System.out.println("Could not delete file");
+            return;
+          }
 
-        //Rename the new file to the filename the original file had.
-        if (!tempFile.renameTo(inFile))
-          System.out.println("Could not rename file");
+          //Rename the new file to the filename the original file had.
+          if (!tempFile.renameTo(inFile))
+            System.out.println("Could not rename file");
 
         }
         catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+          ex.printStackTrace();
         }
         catch (IOException ex) {
-            ex.printStackTrace();
+          ex.printStackTrace();
         }
     }
     
@@ -208,12 +250,12 @@ public class ConstantsFileReaderWriter {
 
             BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\" + sFileName + ".txt"));
 
-            String[] constants = newFileLines.split(newLine);
-            for (String constant: constants) {
+            String[] newConstants = newFileLines.split(newLine);
+            for (String constant: newConstants) {
                 writer.write(constant);
                 writer.write(newLine);
             }
-
+            constants.put(newKey, constants.get(oldKey));
             br.close();
             br2.close();
             writer.close();
@@ -243,6 +285,7 @@ public class ConstantsFileReaderWriter {
             String replacedLine = null;
 
             while ((line = br.readLine()) != null) {
+                System.out.println("in first while");
                 newFileLines += line + newLine;
             }
 
@@ -251,25 +294,25 @@ public class ConstantsFileReaderWriter {
             while ((line = br2.readLine()) != null){
 
                 if (line.trim().contains(key)) {
-                    replacedLine = line.replace(String.valueOf(constants.get(key)), String.valueOf(newVal)); //fix issue here with strings
+                    replacedLine = line.replace(String.valueOf(constants.get(key)), String.valueOf(newVal)); //fix issue here with strings String.valueOf(newVal)
 
                     newFileLines = newFileLines.replace(line, replacedLine);
                 }
-
+                System.out.println(replacedLine + " " + String.valueOf(newVal) + " " + line + " " + String.valueOf(constants.get(key)));
             }
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(sFilePath));
 
-            String[] constants = newFileLines.split(newLine);
-            for (String constant: constants) {
+            String[] newConstants = newFileLines.split(newLine);
+            for (String constant: newConstants) {
                 writer.write(constant);
                 writer.write(newLine);
             }
-
+            constants.put(key, newVal);
             writer.close();
             br.close();
             br2.close();
-
+            
        }
        catch (FileNotFoundException ex) {
            ex.printStackTrace();
