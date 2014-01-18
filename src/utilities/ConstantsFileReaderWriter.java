@@ -123,10 +123,11 @@ public class ConstantsFileReaderWriter {
   
     public void writeConstant(String key, Object val) {
       try {
-          PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath, true)));
-          out.println(key + " = " + val);
-          constants.put(key, val);
-          out.close();
+          PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath, true))); 
+              out.println(key + " = " + val);
+              constants.put(key, val);
+              out.close();
+
       } catch (IOException e) {} //exception handling left as an exercise for the reader
     }
     
