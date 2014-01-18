@@ -47,7 +47,7 @@ public class ConstantsViewer extends Application {
     
     String fileName = "constants";
     String filePath = "C:\\" + fileName + ".txt";
-    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, filePath);
+    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, filePath, "ftp://10.12.41.2/constants.txt");
     private TableView table = new TableView();
     final HBox hb = new HBox();
     final HBox labelHB = new HBox();
@@ -55,7 +55,8 @@ public class ConstantsViewer extends Application {
     @Override
     public void start(Stage stage) {
 
-        consts.processLineByLine();
+        //consts.processLineByLine();
+        consts.FTPToLocal();
         
         consts.hashToConstantArray();
         
