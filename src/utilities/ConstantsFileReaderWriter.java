@@ -28,8 +28,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Hashtable;
+
+
+import org.apache.commons.net.ftp.FTPClient;
 
 /**
  *
@@ -40,141 +44,74 @@ public class ConstantsFileReaderWriter {
   private final Path filePath; //"C:\\Temp\\test.txt" in this form
   private final String sFilePath; 
   private final String sFileName;
+  
+  private final String robotIP;
 
   public static String newLine = System.getProperty("line.separator");
   private static Hashtable constants = new Hashtable();
   
-  String URL;
-
-  URL url;
-  URLConnection conn;
-  InputStream inStream;
-  OutputStream outStream;
-  
   Constant[] constArray;
+  
+  FTPClient ftpClient;
+  FileInputStream inputStream = null;  
   
  /*
   * Constructor.
   * @param aFileName full name of an existing, readable file.
   */
-  public ConstantsFileReaderWriter(String fileName, String filePath, String URL){
+  public ConstantsFileReaderWriter(String fileName, String filePath, String robotIP){
     this.filePath = Paths.get(filePath);
     sFilePath = filePath;
-    sFileName = fileName;
-    this.URL = URL;
-    try{  
-        url = new URL(this.URL);
-        inStream = url.openStream(); 
-        conn = url.openConnection();
-        conn.setDoOutput(true);
-        outStream = conn.getOutputStream();
-    }
-    catch(MalformedURLException e){}
-    catch(IOException e){}
-    
+    sFileName = fileName; 
+    this.robotIP = robotIP;
+    ftpClient = new FTPClient();
   }
   
-  public void FTPToLocal(){
-      try {
-            inStream = url.openStream(); 
-            BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
-            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath, true)));
-            
-            log("in FTPToLocal");
-            
-            String line = null;
-            String prevLine = null;
-            int lineNum = 0;
-            while((line = br.readLine()) != null){
-                lineNum ++;
-                if(line.length() != 0 && line.charAt(0) != '#'){
-                    int numSignPos = line.indexOf("#");
-                    if(numSignPos > 0){
-                        line = line.substring(0, numSignPos);
-                    }
-                    
-                    log("in FTPToLocal WHile");
-                    
-                    int equalsSignPos = line.indexOf("=");
-                    if(equalsSignPos <= 1){
-                        log("INVALID SETTING LINE: " + line + " (" + lineNum + ")");
-                    }else{
-                        String key = line.substring(0, equalsSignPos - 1).trim();
-                        String value = line.substring(equalsSignPos + 1).trim();
-
-                        if(key.length() > 0 && value.length() > 0){
-                            log("putting to HashTable: " + key + " = " + value);
-                            constants.put(key, value);
-                        }
-                    }
-                }
-                prevLine = line;
-                out.println(line);
-            }
-            if (prevLine == ""){
-                out.println();
-            }
-            inStream.close();
-            br.close();
-            out.close();
+  public void FTPUpload(){
+        try{
+          ftpClient.connect(robotIP); //10.xx.yy.2
         }
-        catch(Exception e) {
+        catch(Exception e){
             e.printStackTrace();
         }
-  }
+        try{
+            inputStream = new FileInputStream(sFilePath); 
+            
+            ftpClient.enterLocalPassiveMode();
+            boolean uploaded = ftpClient.storeFile("constants.txt", inputStream);  
+
+            if (uploaded) {  
+            System.out.println("File uploaded successfully");  
+            } else {  
+            System.out.println("Error in uploading file");  
+            }  
+            
+            inputStream.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     
-  public void LocalToFTP(){
-      try {
-            outStream = conn.getOutputStream();
-            BufferedReader br = new BufferedReader(new FileReader("C:\\" + sFileName + ".txt"));
-            PrintWriter out = new PrintWriter(new OutputStreamWriter(outStream));
-            
-            String line = null;
-            String prevLine = null;
-            int lineNum = 0;
-            while((line = br.readLine()) != null){
-                lineNum ++;
-                if(line.length() != 0 && line.charAt(0) != '#'){
-                    int numSignPos = line.indexOf("#");
-                    if(numSignPos > 0){
-                        line = line.substring(0, numSignPos);
-                    }
-
-                    int equalsSignPos = line.indexOf("=");
-                    if(equalsSignPos <= 1){
-                        log("INVALID SETTING LINE: " + line + " (" + lineNum + ")");
-                    }else{
-                        String key = line.substring(0, equalsSignPos - 1).trim();
-                        String value = line.substring(equalsSignPos + 1).trim();
-
-                        if(key.length() > 0 && value.length() > 0){
-                            log("putting to HashTable: " + key + " = " + value);
-                            constants.put(key, value);
-                        }
-                    }
-                }
-                out.println(line);
-            }
-            outStream.close();
-            br.close();
-            out.close();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
+        try {  
+            ftpClient.disconnect();  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
   }
   
   /*
-   * Overridable method for processing lines in different ways.
+   * Method for processing lines of a textfile.
    * This simple default implementation expects simple name-value pairs, separated by an 
    * '=' sign just like the format of the constants file on the robot.
    */
     public void processLineByLine(){
-
+        
         try {
-            BufferedReader br = new BufferedReader(new FileReader("C:\\" + sFileName + ".txt"));
+            File file = new File(sFilePath);
+            if (!file.isFile() && !file.createNewFile()){
+                throw new IOException("Error creating new file: " + file.getAbsolutePath());
+            }
+            BufferedReader br = new BufferedReader(new FileReader(sFilePath));
             PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath, true)));
-
 
             String line = null;
             String prevLine = null;
@@ -202,9 +139,14 @@ public class ConstantsFileReaderWriter {
                 }
                 prevLine = line;
             }
-            if (prevLine == ""){
-                out.println();
-            }
+//            if (!prevLine.isEmpty()){
+//                out.println();
+//                log("newline");
+//                log(prevLine);
+//            }
+            out.close();
+            br.close();
+            //FTPUpload();
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -215,7 +157,6 @@ public class ConstantsFileReaderWriter {
         ArrayList<String> keys = Collections.list(constants.keys());
         ArrayList<Object> vals = Collections.list(constants.elements());
         constArray = new Constant[keys.size()];
-
         for (int i = 0; i < keys.size(); i++) {
             constArray[i] = new Constant(keys.get(i), vals.get(i));
         }
@@ -246,47 +187,11 @@ public class ConstantsFileReaderWriter {
               out.println(key + " = " + val);
               constants.put(key, val);
               out.close();
-              LocalToFTP();
+             // FTPUpload();
       } catch (Exception e) {} //exception handling left as an exercise for the reader
     }
     
     public void deleteConstant(String constToRemove, String constKey) {
-       
-//        File inputFile = new File(sFilePath);
-//        File tempFile = new File("C://" + "temp" + sFileName + ".txt");
-//        try {
-//            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-//            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-//
-//        String currentLine = null;
-//
-//        while((currentLine = reader.readLine()) != null) {
-//            // trim newline when comparing with lineToRemove
-//            String trimmedLine = currentLine.trim();
-//            if(trimmedLine.equals(constToRemove)) continue;
-//            writer.write(currentLine);
-//            writer.write(newLine);
-//        }
-//        
-//        reader.close();
-//        writer.close();
-//        
-//          //Delete the original file
-////    if (!inputFile.delete()) {
-////      System.out.println("Could not delete file");
-////      return;
-////    }
-//        //inputFile.delete();
-//
-//    //Rename the new file to the filename the original file had.
-////    if (!tempFile.renameTo(inputFile))
-////      System.out.println("Could not rename file");
-//    //tempFile.renameTo(inputFile);
-//        inputFile.delete();
-//        constants.remove(constKey);
-//    }
-//        catch (IOException e){}
-        
         
         try {
 
@@ -298,7 +203,7 @@ public class ConstantsFileReaderWriter {
           }
 
           //Construct the new file that will later be renamed to the original filename.
-          File tempFile = new File("C://" + "temp" + sFileName + ".txt");
+          File tempFile = new File("C://" + "Sagar's Folder\\" + "temp" + sFileName + ".txt");
 
           BufferedReader br = new BufferedReader(new FileReader(sFilePath));
           PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
@@ -328,7 +233,7 @@ public class ConstantsFileReaderWriter {
           if (!tempFile.renameTo(inFile))
             System.out.println("Could not rename file");
           
-          LocalToFTP();
+          //FTPUpload();
         }
         catch (FileNotFoundException ex) {
           ex.printStackTrace();
@@ -364,19 +269,20 @@ public class ConstantsFileReaderWriter {
                 }
             }
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\" + sFileName + ".txt"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(sFilePath));
 
             String[] newConstants = newFileLines.split(newLine);
             for (String constant: newConstants) {
                 writer.write(constant);
                 writer.write(newLine);
             }
+            
             constants.put(newKey, constants.get(oldKey));
             br.close();
             br2.close();
             writer.close();
             
-            LocalToFTP();
+            //FTPUpload();
         }
         catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -390,7 +296,7 @@ public class ConstantsFileReaderWriter {
         
         try {
 
-            File inFile = new File("C:\\" + sFileName + ".txt");
+            File inFile = new File(sFilePath);
 
             if (!inFile.isFile()) {
               System.out.println("Parameter is not an existing file");
@@ -412,11 +318,10 @@ public class ConstantsFileReaderWriter {
             while ((line = br2.readLine()) != null){
 
                 if (line.trim().contains(key)) {
-                    replacedLine = line.replace(String.valueOf(constants.get(key)), String.valueOf(newVal)); //fix issue here with strings String.valueOf(newVal)
-
+                    replacedLine = line.replace(String.valueOf(constants.get(key)), String.valueOf(newVal)); 
+                    
                     newFileLines = newFileLines.replace(line, replacedLine);
                 }
-                System.out.println(replacedLine + " " + String.valueOf(newVal) + " " + line + " " + String.valueOf(constants.get(key)));
             }
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(sFilePath));
@@ -431,8 +336,7 @@ public class ConstantsFileReaderWriter {
             br.close();
             br2.close();
             
-            LocalToFTP();
-            
+            //FTPUpload();
        }
        catch (FileNotFoundException ex) {
            ex.printStackTrace();

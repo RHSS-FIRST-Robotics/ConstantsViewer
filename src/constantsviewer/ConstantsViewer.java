@@ -39,6 +39,7 @@ import javafx.stage.Screen;
 import utilities.Constant;
 
 
+
 /**
  *
  * @author Vidyasagar
@@ -46,17 +47,16 @@ import utilities.Constant;
 public class ConstantsViewer extends Application {
     
     String fileName = "constants";
-    String filePath = "C:\\" + fileName + ".txt";
-    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, filePath, "ftp://10.12.41.2/constants.txt");
+    String filePath = "C:\\" + "Sagar's Folder\\" + fileName + ".txt";
+    String robotIP = "10.12.41.2";
+    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, filePath, robotIP); //ftp://10.12.41.2/
     private TableView table = new TableView();
     final HBox hb = new HBox();
-    final HBox labelHB = new HBox();
     
     @Override
     public void start(Stage stage) {
 
-        //consts.processLineByLine();
-        consts.FTPToLocal();
+        consts.processLineByLine();
         
         consts.hashToConstantArray();
         
@@ -106,17 +106,24 @@ public class ConstantsViewer extends Application {
         addValue.setPromptText("Value");
 
         final Button addButton = new Button("Add");
-                addButton.setId("Add-Button");
+        addButton.setId("Add-Button");
         addButton.getStylesheets().add
         (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
         addButton.setOnAction(new EventHandler<ActionEvent>() {
             
             @Override 
             public void handle(ActionEvent e) {
-                data.add(new Constant( addConstant.getText(), String.valueOf(addValue.getText())));
-                consts.writeConstant(addConstant.getText(), String.valueOf(addValue.getText()));
-                addConstant.clear();
-                addValue.clear();
+                
+                String inputTxt = addConstant.getText();
+                if (inputTxt.length() < 1){
+                    
+                }   
+                else{
+                    data.add(new Constant(addConstant.getText(), String.valueOf(addValue.getText())));
+                    consts.writeConstant(addConstant.getText(), String.valueOf(addValue.getText()));
+                    addConstant.clear();
+                    addValue.clear();
+                }
 
             }       
         }
@@ -133,9 +140,14 @@ public class ConstantsViewer extends Application {
             public void handle(ActionEvent e) {
                 Constant delConst = (Constant)table.getSelectionModel().getSelectedItem();
                 data.remove(delConst);
-
-                consts.deleteConstant(delConst.getKey() + " = " + delConst.getVal(), delConst.getKey());
-                table.getSelectionModel().clearSelection();
+                
+                if (delConst != null) {
+                    consts.deleteConstant(delConst.getKey() + " = " + delConst.getVal(), delConst.getKey());
+                    table.getSelectionModel().clearSelection();
+                }
+                else{
+                    
+                }
                 
             }
         });
