@@ -47,3 +47,17 @@ root {
     -fx-border-color: green;
     
 }
+
+#Logo-Image:hover{
+    -fx-animated:true;
+    -fx-border-color: black;
+}
+
+#Reload-Button:hover{
+    -fx-border-color: blueviolet;
+}
+
+#Reload-Button{
+
+    -fx-wrap-text: true;
+}

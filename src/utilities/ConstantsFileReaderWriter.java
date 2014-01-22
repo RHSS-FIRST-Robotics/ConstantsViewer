@@ -55,6 +55,8 @@ public class ConstantsFileReaderWriter {
   FTPClient ftpClient;
   FileInputStream inputStream = null;  
   
+  
+  
  /*
   * Constructor.
   * @param aFileName full name of an existing, readable file.
@@ -106,6 +108,7 @@ public class ConstantsFileReaderWriter {
     public void processLineByLine(){
         
         try {
+            constants.clear();
             File file = new File(sFilePath);
             if (!file.isFile() && !file.createNewFile()){
                 throw new IOException("Error creating new file: " + file.getAbsolutePath());
@@ -233,6 +236,7 @@ public class ConstantsFileReaderWriter {
           if (!tempFile.renameTo(inFile))
             System.out.println("Could not rename file");
           
+          constants.remove(constKey);
           //FTPUpload();
         }
         catch (FileNotFoundException ex) {

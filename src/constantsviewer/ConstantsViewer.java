@@ -14,6 +14,9 @@ import javafx.stage.Stage;
 
 import utilities.ConstantsFileReaderWriter;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -30,10 +33,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import utilities.Constant;
@@ -52,9 +59,15 @@ public class ConstantsViewer extends Application {
     ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, filePath, robotIP); //ftp://10.12.41.2/
     private TableView table = new TableView();
     final HBox hb = new HBox();
+    final HBox hb2 = new HBox();
     
+    Image img = new Image("file:1241-1285 Logo Mash.jpg");
+    ImageView imgView = new ImageView(img);
+            
     @Override
     public void start(Stage stage) {
+        
+        imgView.setId("Logo-Image");
 
         consts.processLineByLine();
         
@@ -72,7 +85,7 @@ public class ConstantsViewer extends Application {
         stage.setResizable(false);
 
         //stage.setWidth(350);
-        //stage.setHeight(540);
+        stage.setHeight(565);
         scene.getStylesheets().add
         (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
  
@@ -81,12 +94,12 @@ public class ConstantsViewer extends Application {
  
         table.setEditable(true);
  
-        TableColumn firstCol = new TableColumn("Constant");
+        final TableColumn firstCol = new TableColumn("Constant");
             firstCol.setMinWidth(220);
             firstCol.setCellValueFactory(
             new PropertyValueFactory<Constant, String>("key"));
             
-        TableColumn secondCol = new TableColumn("Value");
+        final TableColumn secondCol = new TableColumn("Value");
                 secondCol.setMinWidth(67);
             secondCol.setCellValueFactory(
             new PropertyValueFactory<Constant, Object>("val"));
@@ -115,7 +128,8 @@ public class ConstantsViewer extends Application {
             public void handle(ActionEvent e) {
                 
                 String inputTxt = addConstant.getText();
-                if (inputTxt.length() < 1){
+                String inputVal = addValue.getText();
+                if (inputTxt.length() < 1 || inputVal.length() < 1){
                     
                 }   
                 else{
@@ -154,7 +168,35 @@ public class ConstantsViewer extends Application {
         
         hb.getChildren().addAll(addConstant, addValue, addButton, delButton);
         hb.setSpacing(3);
+        
+        final Button reloadButton = new Button("Reload Constants");
+        reloadButton.setId("Reload-Button");
+        reloadButton.setMaxWidth(73);
+        
+        reloadButton.getStylesheets().add
+        (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
+        reloadButton.setOnAction(new EventHandler<ActionEvent>() {
 
+            @Override
+            public void handle(ActionEvent e) {
+                
+                data.removeAll(data);
+                
+                consts.processLineByLine();
+
+                consts.hashToConstantArray();
+
+                for (int i = 0; i < consts.getArrayLength(); i++) {
+                    data.add(consts.getConstArrayAtIndex(i));
+                } //populate table with reloaded values
+
+            }
+        });
+        
+        
+        hb2.getChildren().addAll(reloadButton, imgView);
+        hb2.setSpacing(75);
+        
         firstCol.setCellFactory(TextFieldTableCell.forTableColumn());
         firstCol.setOnEditCommit(
         new EventHandler<CellEditEvent<Constant, String>>() {
@@ -187,9 +229,9 @@ public class ConstantsViewer extends Application {
         );
         
         final VBox vbox = new VBox();
-        vbox.setSpacing(5);
+        vbox.setSpacing(6);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, table, hb);
+        vbox.getChildren().addAll(label, table, hb, hb2);
         
         ((Group) scene.getRoot()).getChildren().addAll(vbox);
  
@@ -197,7 +239,6 @@ public class ConstantsViewer extends Application {
         stage.show();
         
     }
-    
     
 
     /**
