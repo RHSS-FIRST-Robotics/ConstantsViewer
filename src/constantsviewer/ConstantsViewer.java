@@ -44,21 +44,16 @@ import utilities.Constant;
  */
 public class ConstantsViewer extends Application {
     
-    String fileName = "constants";
-    String filePath = "C:\\" + "Sagar's Folder\\" + fileName + ".txt";
-    String robotIP = "10.12.41.2";
-    //ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, filePath, robotIP); //ftp://10.12.41.2/
     private TableView table = new TableView();
+    
+    final String fileName = "constants";
+    
     final HBox hb = new HBox();
     final HBox hb2 = new HBox();
     
     Image img = new Image("file:1241-1285 Logo Mash.jpg");
     ImageView imagView = new ImageView(img);
-    
     final CenteredRegion imgView = new CenteredRegion(new ImageView(img));
-    
-    String IP = "";
-    String path = "";
             
     @Override
     public void start(final Stage stage) {
@@ -89,11 +84,11 @@ public class ConstantsViewer extends Application {
             final TextField pathField = new TextField();
             grid.add(pathField, 1, 1);
 
-            Label pw = new Label("Robot Target IP");
-            grid.add(pw, 0, 2);
+            Label IP = new Label("Robot Target IP");
+            grid.add(IP, 0, 2);
 
-            final TextField IPBox = new TextField();
-            grid.add(IPBox, 1, 2);
+            final TextField IPField = new TextField();
+            grid.add(IPField, 1, 2);
 
             Button btn = new Button("Continue");
             HBox hbBtn = new HBox(10);
@@ -105,186 +100,184 @@ public class ConstantsViewer extends Application {
 
                 @Override
                 public void handle(ActionEvent e) {
-                    final ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, pathField.getText(), IPBox.getText());
-                   consts.processLineByLine();
-        
-        consts.hashToConstantArray();
-        
-        final ObservableList<Constant> data = FXCollections.observableArrayList();
-        
-        for (int i = 0; i < consts.getArrayLength(); i++) {
-            data.add(consts.getConstArrayAtIndex(i));
-        } //populate table with inital values
-        
-        Scene scene = new Scene(new Group());
-        stage.setScene(scene);
-        stage.setTitle(fileName + ".txt");
-        
-
-
-        stage.setResizable(false);
-        scene.getStylesheets().add
-        (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
- 
-        final Label label = new Label("Constants File Editor");
-        label.setId("Constants-File-Editor");
- 
-        table.setEditable(true);
- 
-        final TableColumn firstCol = new TableColumn("Constant");
-            firstCol.setMinWidth(220);
-            firstCol.setCellValueFactory(
-            new PropertyValueFactory<Constant, String>("key"));
-            
-        final TableColumn secondCol = new TableColumn("Value");
-                secondCol.setMinWidth(67);
-            secondCol.setCellValueFactory(
-            new PropertyValueFactory<Constant, Object>("val"));
-            secondCol.setResizable(false);
-        
-        table.getColumns().addAll(firstCol, secondCol);
-        //table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY); //so that only two columns get made
-        
-        table.setItems(data);
-        
-        final TextField addConstant = new TextField();
-        addConstant.setPromptText("Constant");
-        addConstant.setMaxWidth(firstCol.getPrefWidth());
-        
-        final TextField addValue = new TextField();
-        addValue.setMaxWidth(secondCol.getPrefWidth());
-        addValue.setPromptText("Value");
-
-        final Button addButton = new Button("Add");
-        addButton.setId("Add-Button");
-        addButton.getStylesheets().add
-        (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
-        addButton.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override 
-            public void handle(ActionEvent e) {
-                
-                String inputTxt = addConstant.getText();
-                String inputVal = addValue.getText();
-                if (inputTxt.length() < 1 || inputVal.length() < 1){
                     
-                }   
-                else{
-                    data.add(new Constant(addConstant.getText(), String.valueOf(addValue.getText())));
-                    consts.writeConstant(addConstant.getText(), String.valueOf(addValue.getText()));
-                    addConstant.clear();
-                    addValue.clear();
-                }
+                    final ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, pathField.getText(), IPField.getText());
 
-            }       
-        }
-        );
-        
-        
-        final Button delButton = new Button("Delete Selected");
-        delButton.setId("Delete-Button");
-        delButton.getStylesheets().add
-        (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
-        delButton.setOnAction(new EventHandler<ActionEvent>() {
+                    consts.processLineByLine();
 
-            @Override
-            public void handle(ActionEvent e) {
-                Constant delConst = (Constant)table.getSelectionModel().getSelectedItem();
-                data.remove(delConst);
-                
-                if (delConst != null) {
-                    consts.deleteConstant(delConst.getKey() + " = " + delConst.getVal(), delConst.getKey());
-                    table.getSelectionModel().clearSelection();
-                }
-                else{
-                    
-                }
-                
-            }
-        });
-        
-        hb.getChildren().addAll(addConstant, addValue, addButton, delButton);
-        hb.setSpacing(3);
-        
-        final Button reloadButton = new Button("Reload Constants");
-        reloadButton.setId("Reload-Button");
-        //reloadButton.setMaxWidth(73);
-        
-        reloadButton.getStylesheets().add
-        (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
-        reloadButton.setOnAction(new EventHandler<ActionEvent>() {
+                    consts.hashToConstantArray();
 
-            @Override
-            public void handle(ActionEvent e) {
-                
-                data.removeAll(data);
-                
-                consts.processLineByLine();
+                    final ObservableList<Constant> data = FXCollections.observableArrayList();
 
-                consts.hashToConstantArray();
+                    for (int i = 0; i < consts.getArrayLength(); i++) {
+                        data.add(consts.getConstArrayAtIndex(i));
+                    } //populate table with inital values
 
-                for (int i = 0; i < consts.getArrayLength(); i++) {
-                    data.add(consts.getConstArrayAtIndex(i));
-                } //populate table with reloaded values
+                    Scene mainScene = new Scene(new Group());
+                    stage.setScene(mainScene);
+                    stage.setTitle(fileName + ".txt");
 
-            }
-        });
-        
-        
-        hb2.getChildren().addAll(imgView);
-        hb2.setSpacing(75);
-        hb2.setAlignment(Pos.CENTER);
-        
-        firstCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        firstCol.setOnEditCommit(
-        new EventHandler<CellEditEvent<Constant, String>>() {
-            @Override
-            public void handle(CellEditEvent<Constant, String> t) {
+                    stage.setResizable(false);
+                    mainScene.getStylesheets().add
+                    (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
 
-                consts.editConstantKey(t.getRowValue().getKey(), t.getNewValue());
+                    final Label label = new Label("Constants File Editor");
+                    label.setId("Constants-File-Editor");
 
-                ((Constant) t.getTableView().getItems().get(
-                    t.getTablePosition().getRow())
-                    ).setKey(t.getNewValue());
-            }
-        }
-        );
-        
-        secondCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        secondCol.setOnEditCommit(
-        new EventHandler<CellEditEvent<Constant, Object>>() {
-            @Override
-            public void handle(CellEditEvent<Constant, Object> t) {
+                    table.setEditable(true);
 
-                consts.editConstantVal(t.getRowValue().getKey(), t.getNewValue());
-                System.out.println("edited " + t.getRowValue().getKey() + " = " + t.getNewValue());
-                ((Constant) t.getTableView().getItems().get(
-                    t.getTablePosition().getRow())
-                    ).setVal(t.getNewValue());
+                    final TableColumn firstCol = new TableColumn("Constant");
+                        firstCol.setMinWidth(220);
+                        firstCol.setCellValueFactory(
+                        new PropertyValueFactory<Constant, String>("key"));
 
-            }
-        }
-        );
-        
-        final HBox vbox1 = new HBox();
-        vbox1.setSpacing(6);
-        vbox1.setPadding(new Insets(9, 0, 0, 10));
-        vbox1.getChildren().addAll(reloadButton);
-        vbox1.setLayoutX(200);
-        
-        final VBox vbox = new VBox();
-        vbox.setSpacing(6);
-        vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, table, hb);
-        
-        ((Group) scene.getRoot()).getChildren().addAll(vbox,vbox1);
- 
-        stage.setScene(scene);
-        stage.show();
-        
-        //stage.getIcons().add(new Image("file:icon.png"));
-                }
-                });
+                    final TableColumn secondCol = new TableColumn("Value");
+                            secondCol.setMinWidth(67);
+                        secondCol.setCellValueFactory(
+                        new PropertyValueFactory<Constant, Object>("val"));
+                        secondCol.setResizable(false);
+
+                    table.getColumns().addAll(firstCol, secondCol);
+
+                    table.setItems(data);
+
+                    final TextField addConstant = new TextField();
+                    addConstant.setPromptText("Constant");
+                    addConstant.setMaxWidth(firstCol.getPrefWidth());
+
+                    final TextField addValue = new TextField();
+                    addValue.setMaxWidth(secondCol.getPrefWidth());
+                    addValue.setPromptText("Value");
+
+                    final Button addButton = new Button("Add");
+                    addButton.setId("Add-Button");
+                    addButton.getStylesheets().add
+                    (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
+                    addButton.setOnAction(new EventHandler<ActionEvent>() {
+
+                        @Override 
+                        public void handle(ActionEvent e) {
+
+                            String inputTxt = addConstant.getText();
+                            String inputVal = addValue.getText();
+                            if (inputTxt.length() < 1 || inputVal.length() < 1){
+
+                            }   
+                            else{
+                                data.add(new Constant(addConstant.getText(), String.valueOf(addValue.getText())));
+                                consts.writeConstant(addConstant.getText(), String.valueOf(addValue.getText()));
+                                addConstant.clear();
+                                addValue.clear();
+                            }
+
+                        }       
+                    }
+                    );
+
+
+                    final Button delButton = new Button("Delete Selected");
+                    delButton.setId("Delete-Button");
+                    delButton.getStylesheets().add
+                    (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
+                    delButton.setOnAction(new EventHandler<ActionEvent>() {
+
+                        @Override
+                        public void handle(ActionEvent e) {
+                            Constant delConst = (Constant)table.getSelectionModel().getSelectedItem();
+                            data.remove(delConst);
+
+                            if (delConst != null) {
+                                consts.deleteConstant(delConst.getKey() + " = " + delConst.getVal(), delConst.getKey());
+                                table.getSelectionModel().clearSelection();
+                            }
+                            else{
+
+                            }
+
+                        }
+                    });
+
+                    hb.getChildren().addAll(addConstant, addValue, addButton, delButton);
+                    hb.setSpacing(3);
+
+                    final Button reloadButton = new Button("Reload Constants");
+                    reloadButton.setId("Reload-Button");
+
+                    reloadButton.getStylesheets().add
+                    (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
+                    reloadButton.setOnAction(new EventHandler<ActionEvent>() {
+
+                        @Override
+                        public void handle(ActionEvent e) {
+
+                            data.removeAll(data);
+
+                            consts.processLineByLine();
+
+                            consts.hashToConstantArray();
+
+                            for (int i = 0; i < consts.getArrayLength(); i++) {
+                                data.add(consts.getConstArrayAtIndex(i));
+                            } //populate table with reloaded values
+
+                        }
+                    });
+
+
+                    hb2.getChildren().addAll(imgView);
+                    hb2.setSpacing(75);
+                    hb2.setAlignment(Pos.CENTER);
+
+                    firstCol.setCellFactory(TextFieldTableCell.forTableColumn());
+                    firstCol.setOnEditCommit(
+                    new EventHandler<CellEditEvent<Constant, String>>() {
+                        @Override
+                        public void handle(CellEditEvent<Constant, String> t) {
+
+                            consts.editConstantKey(t.getRowValue().getKey(), t.getNewValue());
+
+                            ((Constant) t.getTableView().getItems().get(
+                                t.getTablePosition().getRow())
+                                ).setKey(t.getNewValue());
+                        }
+                    }
+                    );
+
+                    secondCol.setCellFactory(TextFieldTableCell.forTableColumn());
+                    secondCol.setOnEditCommit(
+                    new EventHandler<CellEditEvent<Constant, Object>>() {
+                        @Override
+                        public void handle(CellEditEvent<Constant, Object> t) {
+
+                            consts.editConstantVal(t.getRowValue().getKey(), t.getNewValue());
+                            System.out.println("edited " + t.getRowValue().getKey() + " = " + t.getNewValue());
+                            ((Constant) t.getTableView().getItems().get(
+                                t.getTablePosition().getRow())
+                                ).setVal(t.getNewValue());
+
+                        }
+                    }
+                    );
+
+                    final HBox vbox1 = new HBox();
+                    vbox1.setSpacing(6);
+                    vbox1.setPadding(new Insets(9, 0, 0, 10));
+                    vbox1.getChildren().addAll(reloadButton);
+                    vbox1.setLayoutX(200);
+
+                    final VBox vbox = new VBox();
+                    vbox.setSpacing(6);
+                    vbox.setPadding(new Insets(10, 0, 0, 10));
+                    vbox.getChildren().addAll(label, table, hb);
+
+                    ((Group) mainScene.getRoot()).getChildren().addAll(vbox,vbox1);
+
+                    stage.setScene(mainScene);
+                    stage.show();
+
+                    //stage.getIcons().add(new Image("file:icon.png"));
+               }
+          });
 
         
         

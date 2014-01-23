@@ -8,12 +8,12 @@
 
 root { 
     display: block;
-    -fx-font-family: "Calibri Light";
+    -fx-font-family: "Tahoma";
 }
 
 #Constants-File-Editor {
-   -fx-font-size: 24pt;
-   -fx-font-family: "Calibri Light";
+   -fx-font-size: 20pt;
+   -fx-font-family: "Tahoma";
 
 }
 
@@ -34,23 +34,12 @@ root {
     -fx-shape: null;
 }
 
-#Delete-Button {
-    
-}
-
 #Delete-Button:hover {
-    -fx-border-color: red;
-    
+    -fx-border-color: red 
 }
 
 #Add-Button:hover {
-    -fx-border-color: green;
-    
-}
-
-#Logo-Image:hover{
-    -fx-animated:true;
-    -fx-border-color: black;
+    -fx-border-color: green;   
 }
 
 #Reload-Button:hover{
@@ -58,6 +47,6 @@ root {
 }
 
 #Reload-Button{
-
+    -fx-font-size: 12pt;
     -fx-wrap-text: true;
 }

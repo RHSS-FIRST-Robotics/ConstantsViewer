@@ -9,27 +9,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Scanner;
 import java.util.Hashtable;
 
 
@@ -41,7 +26,6 @@ import org.apache.commons.net.ftp.FTPClient;
  */
 public class ConstantsFileReaderWriter {
     
-  private final Path filePath; //"C:\\Temp\\test.txt" in this form
   private final String sFilePath; 
   private final String sFileName;
   
@@ -56,13 +40,11 @@ public class ConstantsFileReaderWriter {
   FileInputStream inputStream = null;  
   
   
-  
  /*
   * Constructor.
   * @param aFileName full name of an existing, readable file.
   */
   public ConstantsFileReaderWriter(String fileName, String filePath, String robotIP){
-    this.filePath = Paths.get(filePath);
     sFilePath = filePath;
     sFileName = fileName; 
     this.robotIP = robotIP;
@@ -71,7 +53,7 @@ public class ConstantsFileReaderWriter {
   
   public void FTPUpload(){
         try{
-          ftpClient.connect(robotIP); //10.xx.yy.2
+          ftpClient.connect(robotIP); 
         }
         catch(Exception e){
             e.printStackTrace();
@@ -83,9 +65,9 @@ public class ConstantsFileReaderWriter {
             boolean uploaded = ftpClient.storeFile("constants.txt", inputStream);  
 
             if (uploaded) {  
-            System.out.println("File uploaded successfully");  
+                System.out.println("File uploaded successfully");  
             } else {  
-            System.out.println("Error in uploading file");  
+                System.out.println("Error in uploading file");  
             }  
             
             inputStream.close();
@@ -142,11 +124,7 @@ public class ConstantsFileReaderWriter {
                 }
                 prevLine = line;
             }
-//            if (!prevLine.isEmpty()){
-//                out.println();
-//                log("newline");
-//                log(prevLine);
-//            }
+
             out.close();
             br.close();
             //FTPUpload();
