@@ -9,22 +9,17 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
 import utilities.ConstantsFileReaderWriter;
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -32,20 +27,16 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.TilePane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Screen;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import utilities.Constant;
-
-
 
 /**
  *
@@ -56,20 +47,66 @@ public class ConstantsViewer extends Application {
     String fileName = "constants";
     String filePath = "C:\\" + "Sagar's Folder\\" + fileName + ".txt";
     String robotIP = "10.12.41.2";
-    ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, filePath, robotIP); //ftp://10.12.41.2/
+    //ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, filePath, robotIP); //ftp://10.12.41.2/
     private TableView table = new TableView();
     final HBox hb = new HBox();
     final HBox hb2 = new HBox();
     
     Image img = new Image("file:1241-1285 Logo Mash.jpg");
-    ImageView imgView = new ImageView(img);
+    ImageView imagView = new ImageView(img);
+    
+    final CenteredRegion imgView = new CenteredRegion(new ImageView(img));
+    
+    String IP = "";
+    String path = "";
             
     @Override
-    public void start(Stage stage) {
-        
-        imgView.setId("Logo-Image");
+    public void start(final Stage stage) {
+            
+            GridPane grid = new GridPane();
+            grid.setAlignment(Pos.CENTER);
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(25, 25, 25, 25));
 
-        consts.processLineByLine();
+            Scene initScene = new Scene(grid, 300, 275);
+            stage.setScene(initScene);
+            
+            stage.setTitle("Constants File Editor"); 
+            stage.setScene(initScene); 
+            stage.setWidth(340);
+            stage.setHeight(505);
+            
+            stage.show(); 
+            
+            Text initSceneTitle = new Text("Constants File Editor");
+            initSceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+            grid.add(initSceneTitle, 0, 0, 2, 1);
+
+            Label pathToFile = new Label("Local File Path");
+            grid.add(pathToFile, 0, 1);
+
+            final TextField pathField = new TextField();
+            grid.add(pathField, 1, 1);
+
+            Label pw = new Label("Robot Target IP");
+            grid.add(pw, 0, 2);
+
+            final TextField IPBox = new TextField();
+            grid.add(IPBox, 1, 2);
+
+            Button btn = new Button("Continue");
+            HBox hbBtn = new HBox(10);
+            hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+            hbBtn.getChildren().add(btn);
+            grid.add(hbBtn, 1, 4);
+
+            btn.setOnAction(new EventHandler<ActionEvent>() {
+
+                @Override
+                public void handle(ActionEvent e) {
+                    final ConstantsFileReaderWriter consts = new ConstantsFileReaderWriter(fileName, pathField.getText(), IPBox.getText());
+                   consts.processLineByLine();
         
         consts.hashToConstantArray();
         
@@ -82,10 +119,10 @@ public class ConstantsViewer extends Application {
         Scene scene = new Scene(new Group());
         stage.setScene(scene);
         stage.setTitle(fileName + ".txt");
-        stage.setResizable(false);
+        
 
-        //stage.setWidth(350);
-        stage.setHeight(565);
+
+        stage.setResizable(false);
         scene.getStylesheets().add
         (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
  
@@ -171,7 +208,7 @@ public class ConstantsViewer extends Application {
         
         final Button reloadButton = new Button("Reload Constants");
         reloadButton.setId("Reload-Button");
-        reloadButton.setMaxWidth(73);
+        //reloadButton.setMaxWidth(73);
         
         reloadButton.getStylesheets().add
         (ConstantsViewer.class.getResource("ConstantsViewer.css").toExternalForm());
@@ -194,8 +231,9 @@ public class ConstantsViewer extends Application {
         });
         
         
-        hb2.getChildren().addAll(reloadButton, imgView);
+        hb2.getChildren().addAll(imgView);
         hb2.setSpacing(75);
+        hb2.setAlignment(Pos.CENTER);
         
         firstCol.setCellFactory(TextFieldTableCell.forTableColumn());
         firstCol.setOnEditCommit(
@@ -228,18 +266,74 @@ public class ConstantsViewer extends Application {
         }
         );
         
+        final HBox vbox1 = new HBox();
+        vbox1.setSpacing(6);
+        vbox1.setPadding(new Insets(9, 0, 0, 10));
+        vbox1.getChildren().addAll(reloadButton);
+        vbox1.setLayoutX(200);
+        
         final VBox vbox = new VBox();
         vbox.setSpacing(6);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, table, hb, hb2);
+        vbox.getChildren().addAll(label, table, hb);
         
-        ((Group) scene.getRoot()).getChildren().addAll(vbox);
+        ((Group) scene.getRoot()).getChildren().addAll(vbox,vbox1);
  
         stage.setScene(scene);
         stage.show();
         
+        //stage.getIcons().add(new Image("file:icon.png"));
+                }
+                });
+
+        
+        
     }
     
+    class CenteredRegion extends Region {
+    private Node content;
+
+    CenteredRegion(Node content) {
+      this.content = content;
+      getChildren().add(content);
+    }
+
+    @Override protected void layoutChildren() {
+      content.relocate(
+        Math.round(getWidth()  / 2 - content.prefWidth(USE_PREF_SIZE)  / 2), 
+        Math.round(getHeight() / 2 - content.prefHeight(USE_PREF_SIZE) / 2)
+      );
+
+      System.out.println("crisp content relocated to: " +
+        getLayoutX() + "," + getLayoutY()
+      );
+    }
+
+    public Node getContent() {
+      return content;
+    }
+  }
+
+  class BoundsReporter implements ChangeListener<Bounds> {
+    final String logPrefix;
+
+    BoundsReporter(String logPrefix) {
+      this.logPrefix = logPrefix;
+    }
+
+    @Override public void changed(ObservableValue<? extends Bounds> ov, Bounds oldBounds, Bounds newBounds) {
+      System.out.println(logPrefix + ": " + 
+        "New Bounds: " + newBounds
+      );
+      double xDisplacement = newBounds.getMinX() - Math.floor(newBounds.getMinX());
+      double yDisplacement = newBounds.getMinY() - Math.floor(newBounds.getMinY());
+      System.out.println(logPrefix + ": " + 
+        "xDisplacement: " + xDisplacement + ", " + 
+        "yDisplacement: " + yDisplacement
+      );
+    }
+  }          
+
 
     /**
      * The main() method is ignored in correctly deployed JavaFX application.
