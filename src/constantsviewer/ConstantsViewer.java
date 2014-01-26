@@ -36,6 +36,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
+import java.io.File;
 import utilities.Constant;
 
 /**
@@ -69,7 +71,7 @@ public class ConstantsViewer extends Application {
             
             stage.setTitle("Constants File Editor"); 
             stage.setScene(initScene); 
-            stage.setWidth(340);
+            stage.setWidth(400);
             stage.setHeight(505);
             
             stage.show(); 
@@ -80,7 +82,10 @@ public class ConstantsViewer extends Application {
 
             Label pathToFile = new Label("Local File Path");
             grid.add(pathToFile, 0, 1);
-
+            
+            Button browseBtn = new Button("Browse...");
+            grid.add(browseBtn,2,1);
+            
             final TextField pathField = new TextField();
             grid.add(pathField, 1, 1);
 
@@ -91,11 +96,21 @@ public class ConstantsViewer extends Application {
             grid.add(IPField, 1, 2);
 
             Button btn = new Button("Continue");
+            btn.setDefaultButton(true);
             HBox hbBtn = new HBox(10);
             hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
             hbBtn.getChildren().add(btn);
             grid.add(hbBtn, 1, 4);
-
+            
+            final DirectoryChooser direcChooser = new DirectoryChooser();
+            direcChooser.setTitle("Select local file path");
+            browseBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    File localFile = direcChooser.showDialog(stage);
+                    pathField.setText(localFile.getAbsolutePath());
+                }
+            });
             btn.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override

@@ -53,19 +53,21 @@ public class ConstantsFileReaderWriter {
   
   public void FTPUpload(){
         try{
-          ftpClient.connect(robotIP); 
+          ftpClient.connect(robotIP);
+          ftpClient.login("","");
         }
         catch(Exception e){
             e.printStackTrace();
         }
         try{
-            inputStream = new FileInputStream(sFilePath); 
+            inputStream = new FileInputStream(sFilePath + "\\constants.txt"); 
             
             ftpClient.enterLocalPassiveMode();
             boolean uploaded = ftpClient.storeFile("constants.txt", inputStream);  
 
             if (uploaded) {  
                 System.out.println("File uploaded successfully");  
+                ftpClient.logout();
             } else {  
                 System.out.println("Error in uploading file");  
             }  
@@ -91,12 +93,12 @@ public class ConstantsFileReaderWriter {
         
         try {
             constants.clear();
-            File file = new File(sFilePath);
+            File file = new File(sFilePath  + "\\constants.txt");
             if (!file.isFile() && !file.createNewFile()){
                 throw new IOException("Error creating new file: " + file.getAbsolutePath());
             }
-            BufferedReader br = new BufferedReader(new FileReader(sFilePath));
-            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath, true)));
+            BufferedReader br = new BufferedReader(new FileReader(sFilePath  + "\\constants.txt"));
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath + "\\constants.txt", true)));
 
             String line = null;
             String prevLine = null;
@@ -127,7 +129,7 @@ public class ConstantsFileReaderWriter {
 
             out.close();
             br.close();
-            //FTPUpload();
+            FTPUpload();
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -164,11 +166,11 @@ public class ConstantsFileReaderWriter {
   
     public void writeConstant(String key, Object val) {
       try {
-          PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath, true))); 
+          PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(sFilePath + "\\constants.txt", true))); 
               out.println(key + " = " + val);
               constants.put(key, val);
               out.close();
-             // FTPUpload();
+              FTPUpload();
       } catch (Exception e) {} //exception handling left as an exercise for the reader
     }
     
@@ -176,7 +178,7 @@ public class ConstantsFileReaderWriter {
         
         try {
 
-          File inFile = new File(sFilePath);
+          File inFile = new File(sFilePath + "\\constants.txt");
 
           if (!inFile.isFile()) {
             System.out.println("Parameter is not an existing file");
@@ -184,9 +186,9 @@ public class ConstantsFileReaderWriter {
           }
 
           //Construct the new file that will later be renamed to the original filename.
-          File tempFile = new File("C://" + "Sagar's Folder\\" + "temp" + sFileName + ".txt");
+          File tempFile = new File(sFilePath + "\\tempconstants.txt");
 
-          BufferedReader br = new BufferedReader(new FileReader(sFilePath));
+          BufferedReader br = new BufferedReader(new FileReader(sFilePath + "\\constants.txt"));
           PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
 
           String line = null;
@@ -215,7 +217,7 @@ public class ConstantsFileReaderWriter {
             System.out.println("Could not rename file");
           
           constants.remove(constKey);
-          //FTPUpload();
+          FTPUpload();
         }
         catch (FileNotFoundException ex) {
           ex.printStackTrace();
@@ -228,7 +230,7 @@ public class ConstantsFileReaderWriter {
     public void editConstantKey(String oldKey, String newKey) {
         try {
 
-            File inFile = new File(sFilePath);
+            File inFile = new File(sFilePath + "\\constants.txt");
 
             if (!inFile.isFile()) {
               System.out.println("Parameter is not an existing file");
@@ -251,7 +253,7 @@ public class ConstantsFileReaderWriter {
                 }
             }
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(sFilePath));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(sFilePath  + "\\constants.txt"));
 
             String[] newConstants = newFileLines.split(newLine);
             for (String constant: newConstants) {
@@ -264,7 +266,7 @@ public class ConstantsFileReaderWriter {
             br2.close();
             writer.close();
             
-            //FTPUpload();
+            FTPUpload();
         }
         catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -278,7 +280,7 @@ public class ConstantsFileReaderWriter {
         
         try {
 
-            File inFile = new File(sFilePath);
+            File inFile = new File(sFilePath + "\\constants.txt");
 
             if (!inFile.isFile()) {
               System.out.println("Parameter is not an existing file");
@@ -306,7 +308,7 @@ public class ConstantsFileReaderWriter {
                 }
             }
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(sFilePath));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(sFilePath  + "\\constants.txt"));
 
             String[] newConstants = newFileLines.split(newLine);
             for (String constant: newConstants) {
@@ -318,7 +320,7 @@ public class ConstantsFileReaderWriter {
             br.close();
             br2.close();
             
-            //FTPUpload();
+            FTPUpload();
        }
        catch (FileNotFoundException ex) {
            ex.printStackTrace();

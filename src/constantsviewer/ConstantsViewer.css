@@ -48,5 +48,5 @@ root {
 
 #Reload-Button{
     -fx-font-size: 12pt;
-    -fx-wrap-text: true;
+    -fx-wrap-text: false;
 }
