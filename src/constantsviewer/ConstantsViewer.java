@@ -131,6 +131,9 @@ public class ConstantsViewer extends Application {
                     Scene mainScene = new Scene(new Group());
                     stage.setScene(mainScene);
                     stage.setTitle(fileName + ".txt");
+                    
+                    stage.setWidth(340);
+                    stage.setHeight(505);
 
                     stage.setResizable(false);
                     mainScene.getStylesheets().add
